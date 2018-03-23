@@ -1,0 +1,1 @@
+# Display two images side by side on the same window / Exibe duas imagens lado a lado na mesma janela
