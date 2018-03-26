@@ -10,13 +10,18 @@ def main():
         blur = cv2.GaussianBlur(img, (3, 3), 0)
         skinMask = HSVBin(blur)
         contours = getContours(skinMask)
-        # cimg = cv2.cvtColor(blur,cv2.COLOR_GRAY2BGR)
-        circles = getCircles(blur, contours)
-        cv2.drawContours(img, contours, -1, (0, 255, 0), 2)
-        cv2.imshow('capture', np.hstack([img, circles]))
-        k = cv2.waitKey(10)
-        if k == 27:
-            break
+        if(contours):
+            center, radius = getSkinContourCircle(contours)
+            cv2.circle(img,center,radius,(0,255,0),2)
+            # cimg = cv2.cvtColor(blur,cv2.COLOR_GRAY2BGR)
+            circles = getCircles(blur, contours)
+            cv2.drawContours(img, contours, -1, (0, 255, 0), 2)
+            cv2.imshow('capture', np.hstack([img, circles]))
+            k = cv2.waitKey(10)
+            if k == 27:
+                break
+        else:
+            print('No skin to detect')
 
 
 def getContours(img):
@@ -30,6 +35,13 @@ def getContours(img):
         if cv2.contourArea(cont) > 9000:
             validContours.append(cv2.convexHull(cont))
     return validContours
+
+def getSkinContourCircle(contours):
+    circle = max(contours, key=cv2.contourArea)
+    (x,y),radius = cv2.minEnclosingCircle(circle)
+    center = (int(x),int(y))
+    radius = int(radius)
+    return [center, radius]
 
 
 def getCircles(blur, contours):
