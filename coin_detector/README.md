@@ -1,1 +1,1 @@
-# Detect and recognise coins holded by a hand / Detecta e reconhec moedas seguradas na mao
+# Detect and recognise coins holded in a hand / Detecta e reconhec moedas seguradas na mao
