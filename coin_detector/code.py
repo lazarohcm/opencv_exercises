@@ -3,8 +3,28 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 
-plt.show()
 def main():
+	# Load histigrams of each coin that we want to identify / Carrega o histograma para cada moeda que iremos identificar
+	five_cent = np.loadtxt('equalized_hist_five_cents.txt')
+	ten_cent = np.loadtxt('ten_cents.txt')
+	twenty_five_cent = np.loadtxt('twenty_five_cents.txt')
+	fifty_cent = np.loadtxt('fifty_cents.txt')
+
+	#Change plot background color / Altera a cor de fundo da plotagem
+	plt.rcParams['axes.facecolor']='#a09c9c'
+	plt.rcParams['savefig.facecolor']='#a09c9c'
+
+	#Set coin lines color / Define as cores das linhas para cada moeda
+	plt.plot(five_cent, color='r')
+	plt.plot(ten_cent, color='g')
+	plt.plot(twenty_five_cent, color='b')
+	plt.plot(fifty_cent, color='k')
+	
+	plt.xlim([0,256])
+	#Set legend for each coin line / Define a legenda para cada linha associada a uma meda
+	plt.legend(('five','ten', 'twenty_five', 'fifty'), loc = 'upper left')
+	#Plot histogram of with the courves saved before / Plota o histograma com das moedas ja salvas
+	plt.show()
 	cap = cv2.VideoCapture(0)
 	while(cap.isOpened()):
 		ret, img = cap.read()
@@ -17,19 +37,29 @@ def main():
 			# cimg = cv2.cvtColor(blur,cv2.COLOR_GRAY2BGR)
 			circles, crop = getCircles(blur, contours)
 			cv2.drawContours(img, contours, -1, (0, 255, 0), 2)
-			cv2.imshow('capture', np.hstack([img, circles]))
+			cv2.imshow('capture', np.hstack([img, circles])) 
 			height, width, channels = crop.shape
 			if(height > 0 and width > 0):
 				hist = cv2.calcHist([crop],[0],None,[256],[0,256])
-				plt.plot(hist)				
-				cv2.imshow('croped', np.hstack([crop]))
+				# equalized = cv2.equalizeHist(cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY))
+				img_yuv = cv2.cvtColor(crop, cv2.COLOR_BGR2YUV)
+
+				# equalize the histogram of the Y channel
+				img_yuv[:,:,0] = cv2.equalizeHist(img_yuv[:,:,0])
+
+				# convert the YUV image back to RGB format
+				img_output = cv2.cvtColor(img_yuv, cv2.COLOR_YUV2BGR)
+				plt.plot(hist, color = 'b')				
+				# plt.plot(equalizedHist, color = 'r')	
+				# plt.legend(('cdf','histogram'), loc = 'upper left')			
+				cv2.imshow('croped', np.hstack([crop, img_output]))
+				# cv2.imshow('equalized', np.hstack([img_output]))
 			k = cv2.waitKey(10)
 			if k == 27:
 				break
 			if k == 83 or k == 115:
 				print(k)
 				plt.show()
-				print(hist)
 				np.savetxt('hist.txt', hist)
 		else:
 			print('No skin to detect')
