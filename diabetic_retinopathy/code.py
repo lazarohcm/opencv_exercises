@@ -39,13 +39,14 @@ def getGradients(folder_path, cell_size, block_size, nbins):
 
         hog = defineHOG(image[1], cell_size, block_size, nbins)
         gradient = computeHOG(image[1], hog, cell_size, block_size, nbins)
+        print(gradient.size)
         gradients.append([filename, np.float32(gradient)])
         # if index == 3: break
     return gradients
 
 
 # HOG Parameters
-CELL_SIZE = (16, 16)# Loading AR training set
+CELL_SIZE = (256, 256)# Loading AR training set
 # ar_training_images = load_images_from_folder('./training/apparent_retinopathy/')
 BLOCK_SIZE = (4, 4)
 NBINS = 9
