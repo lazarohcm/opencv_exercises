@@ -21,13 +21,15 @@ def defineHOG(image, cell_size, block_size, nbins):
     cell_size = (cell_size[1], cell_size[0])
     return cv2.HOGDescriptor(win_size, block, stride, cell_size, nbins)
 
-def computeHOG(image, hog, cell_size, block_size, nbins ):
+
+def computeHOG(image, hog, cell_size, block_size, nbins):
     n_cells = (image.shape[0] // cell_size[0], image.shape[1] // cell_size[1])
     return hog.compute(image)\
         .reshape(n_cells[1] - BLOCK_SIZE[1] + 1,
                  n_cells[0] - BLOCK_SIZE[0] + 1,
                  BLOCK_SIZE[0], BLOCK_SIZE[1], NBINS) \
         .transpose((1, 0, 2, 3, 4))
+
 
 def getGradients(folder_path, cell_size, block_size, nbins):
     image_set = load_images_from_folder(folder_path)
@@ -46,7 +48,7 @@ def getGradients(folder_path, cell_size, block_size, nbins):
 
 
 # HOG Parameters
-CELL_SIZE = (256, 256)# Loading AR training set
+CELL_SIZE = (256, 256)  # Loading AR training set
 # ar_training_images = load_images_from_folder('./training/apparent_retinopathy/')
 BLOCK_SIZE = (4, 4)
 NBINS = 9
