@@ -5,8 +5,11 @@ import time
 import sys
 import csv
 from helpers.class_model import ClassModel
+from svm.svm import SVM
 import os
 
+sys.settrace
+np.set_printoptions(threshold=np.nan)
 # Classes
 # 0 - No DR
 # 1 - Mild
@@ -17,14 +20,24 @@ CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
 LABELS = '/trainLabels.csv'
 IMAGES_PATH = '/home/lazarohcm/Documents/diabetic_retinopathy/train'
 
-no_dr = ClassModel(0, CURRENT_PATH + LABELS, IMAGES_PATH)
-p_dr = ClassModel(1, CURRENT_PATH + LABELS, IMAGES_PATH)
+# HOG Parameters
+CELL_SIZE = (128, 128)  # Loading AR training set
+BLOCK_SIZE = (4, 4)
+NBINS = 9
+SAMPLES_SIZE = 500
+RESIZE_TO = (1024, 768)
 
-sys.settrace
-np.set_printoptions(threshold=np.nan)
+no_dr = ClassModel(0, CURRENT_PATH + LABELS, IMAGES_PATH, SAMPLES_SIZE)
+p_dr = ClassModel(1, CURRENT_PATH + LABELS, IMAGES_PATH, SAMPLES_SIZE)
+svm = SVM([no_dr, p_dr], CELL_SIZE, BLOCK_SIZE, NBINS, RESIZE_TO)
+
+svm.train()
+svm.test()
+svm.save_test()
+
 
 print('Starting train')
-no_dr.load_train()
+# no_dr.load_train()
 
 # train_images = Images(CURRENT_PATH + '/kaggle_small_train/')
 # train_images.load_labels(CURRENT_PATH + '/trainLabels.csv', ',')
