@@ -1,7 +1,6 @@
 import cv2
 import sys
 import numpy as np
-import random
 import csv
 from helpers.class_model import ClassModel
 from typing import List
@@ -98,6 +97,10 @@ class SVM:
         self.svm.save('training_result.dat')
 
     def test(self):
+        # Cleaning memory
+        self.train_images = None
+        self.train_features = None
+        self.train_samples = None
         print('Testing')
         self.load_samples('test', self.test_samples, self.test_images)
         total = len(self.test_images)
@@ -112,18 +115,14 @@ class SVM:
                 self.test_features = self.compute_hog(image) if len(
                     self.test_features) == 0 else np.concatenate((self.test_features, self.compute_hog(image)), axis=0)
 
-        # self.test_results = self.svm.predict(self.test_features))
         self.test_results = self.svm.predict(self.test_features)[1].ravel()
-        print(self.test_results)
-        print(self.test_samples[:, 1])
 
-    def save_test(self):
-        with open('test_results.csv', 'w') as csvfile:
+    def save_test(self, file_name):
+        with open(file_name, 'w') as csvfile:
             fieldnames = ['prediction', 'actual_class']
             writer = csv.DictWriter(
                 csvfile, delimiter=",", fieldnames=fieldnames)
             writer.writeheader()
-            # results = np.array(self.test_results)
             for index, result in enumerate(self.test_results):
                 writer.writerow(
                     {'prediction': int(result), 'actual_class': self.test_samples[:, 1][index]})
