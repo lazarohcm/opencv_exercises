@@ -38,17 +38,19 @@ t_start = time.time()
 
 # Read training images
 images_name = glob.glob('kaggle_small_train/*')
+test_images_name = glob.glob('kaggle_small_test/*')
 
 images = []
 
-# Loading images
+# Loading images for training
 for index, image in enumerate(images_name):
     print('Reading ' + str(index) + ' of ' + str(len(images_name)))
     img = cv2.imread(image)
     img = cv2.resize(img, (1024, 768), interpolation=cv2.INTER_AREA)
     images.append(img)
     # if(index == 5):
-        # break
+    # break
+test_images = []
 
 images = np.asarray(images)
 
@@ -72,10 +74,35 @@ print(features.shape)
 svm = cv2.ml.SVM_create()
 svm.setKernel(cv2.ml.SVM_LINEAR)
 svm.setType(cv2.ml.SVM_C_SVC)
-# svm.setC(2.67)
-# svm.setGamma(5.383)
-# svm.train(features, cv2.ml.ROW_SAMPLE, labels[0:6])
-svm.train(features, cv2.ml.ROW_SAMPLE, labels)
+svm.trainAuto(features, cv2.ml.ROW_SAMPLE, labels, 10)
 svm.save('svm_data.dat')
 
-print("Time Taken:", np.round(time.time() - t_start, 2))
+print("Time Taken on training:", np.round(time.time() - t_start, 2))
+
+
+for index, image in enumerate(test_images_name):
+    print('Reading test ' + str(index) + ' of ' + str(len(test_images_name)))
+    img = cv2.imread(image)
+    img = cv2.resize(img, (1024, 768), interpolation=cv2.INTER_AREA)
+    test_images.append(img)
+test_images = np.asarray(images)
+print(len(test_images))
+test_features = []
+
+# Getting features
+for image in test_images:
+    n_cells = (image.shape[0] // CELL_SIZE[0], image.shape[1] // CELL_SIZE[1])
+    hog = np.float32(defineHOG(image, CELL_SIZE, BLOCK_SIZE,
+                               NBINS).compute(image))
+    hog = np.transpose(hog)
+    if(len(test_features) == 0):
+        test_features = hog
+    else:
+        test_features = np.concatenate((test_features, hog))
+test_features = np.array(test_features)
+
+res = svm.predict(test_features)
+print(res)
+
+
+
