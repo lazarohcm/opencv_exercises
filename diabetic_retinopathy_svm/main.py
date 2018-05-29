@@ -24,7 +24,7 @@ IMAGES_PATH = '/home/lazarohcm/Documents/diabetic_retinopathy/train'
 CELL_SIZE = (128, 128)  # Loading AR training set
 BLOCK_SIZE = (4, 4)
 NBINS = 9
-SAMPLES_SIZE = 200
+SAMPLES_SIZE = 300
 RESIZE_TO = (1024, 768)
 
 t_start = time.time()
